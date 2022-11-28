@@ -1,5 +1,22 @@
 
 import pygame
+import mediapipe_hands_recognition
+import cv2
+import mediapipe as mp
+import threading
+
+
+class StartCamera(threading.Thread):
+    def __init__(self, x):
+        self.__x = x
+        threading.Thread.__init__(self)
+
+    def run(self):  # run() se utiliza para definir el comportamiento del hilo
+        start_camera()
+
+    def kill(self):
+        self.killed = True
+
 
 BLANCO = (255, 255, 255)
 COLOR_TEXTO = (50, 60, 80)
@@ -41,22 +58,53 @@ def dibujar_botones_iniciales(lista_botones):
 
 
 ventana.blit(background, (0, 0))
-# Bucle principal del juego
-# jugando = True
-# while jugando:
-#     # Comprobamos los eventos
-#     # Comprobamos si se ha pulsado el botón de cierre de la ventana
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             jugando = False
-#     # Se pinta la ventana con un color
-#     # Esto borra los posibles elementos que teníamos anteriormente
-#     # ventana.fill((255, 255, 255))
-#     # Todos los elementos del juego se vuelven a dibujar
-#     pygame.display.flip()
-#     # Controlamos la frecuencia de refresco (FPS)
-#     pygame.time.Clock().tick(60)
-# pygame.quit()
+
+x = 0
+y = 0
+
+
+def start_camera():
+    mp_hands = mp.solutions.hands
+    # cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    with mp_hands.Hands(
+            static_image_mode=False,
+            max_num_hands=2,
+            min_detection_confidence=0.5) as hands:
+        while True:
+            ret, frame = cap.read()
+            if ret == False:
+                break
+            height, width, _ = frame.shape
+            # print("Height", height)
+            # print("Width", width)
+            frame = cv2.flip(frame, 1)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(frame_rgb)
+            # print("Handedness:", results.multi_handedness)
+            # print('Hand landmarks:', results.multi_hand_landmarks)
+            if results.multi_hand_landmarks is not None:
+                index = [12]
+                for hand_landmarks in results.multi_hand_landmarks:
+                    for (i, points) in enumerate(hand_landmarks.landmark):
+                        if i in index:
+                            global x
+                            global y
+                            x = int(points.x * width)
+                            y = int(points.y * height)
+
+                            # print("X: ", x)
+                            # print("Y: ", y)
+                    # mp_drawing.draw_landmarks(
+                    #     frame, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+                    #     mp_drawing.DrawingSpec(
+                    #         color=(0, 255, 255), thickness=3, circle_radius=5),
+                    #     mp_drawing.DrawingSpec(color=(255, 0, 255), thickness=4, circle_radius=5))
+            # cv2.imshow('Frame', frame)
+            if cv2.waitKey(1) & 0xFF == 27:
+                break
+    cap.release()
+    # cv2.destroyAllWindows()
 
 
 def main():
@@ -76,6 +124,7 @@ def main():
 
     # dibujar_botones_iniciales(botones)
     click = False
+    camera = StartCamera(1)
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -91,17 +140,28 @@ def main():
                     boton['on_click'] = False
 
         if botones[0]['on_click'] and click:
-            print("boton 1")
+            print("Jugar")
+            # mediapipe_hands_recognition.main()
+            # exec("mediapipe_hands_recognition.py")
+
+            camera.start()
+            # StarCamera(1).start()
+            # x.
             click = False
 
         dibujar_botones_iniciales(botones)
 
         if click and botones[1]['on_click']:
             game_over = True
+
             click = False
 
+        print("X: ", x)
+        print("Y: ", y)
         pygame.display.flip()
         clock.tick(60)
+    camera.kill()
+    camera.join()
     pygame.quit()
 
 

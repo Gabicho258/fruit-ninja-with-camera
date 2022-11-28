@@ -14,6 +14,7 @@ imagen_panel = pygame.image.load("./img/panel.png")
 imagen_boton = pygame.image.load("./img/button.png")
 imagen_boton_pressed = pygame.image.load("./img/buttonPressed.png")
 fuente = pygame.font.SysFont('Courier', 20)
+#########
 
 
 def dibujar_texto(texto, contenedor_imagen, contenedor_rec, fuente_render, color):
@@ -37,6 +38,8 @@ def dibujar_botones_iniciales(lista_botones):
             pantalla.blit(boton['imagen'], boton['rect'])
         dibujar_texto(boton['texto'], boton['imagen'].get_rect(),
                       boton['rect'], fuente, BLANCO)
+
+#########
 
 
 def main():

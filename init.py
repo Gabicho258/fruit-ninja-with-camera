@@ -1,6 +1,5 @@
 
 import pygame
-import mediapipe_hands_recognition
 import cv2
 import mediapipe as mp
 import threading
@@ -71,8 +70,10 @@ def start_camera():
             static_image_mode=False,
             max_num_hands=2,
             min_detection_confidence=0.5) as hands:
-        while True:
+        while not game_over:
+            print("gameover", game_over)
             ret, frame = cap.read()
+            print("whileeeeeeeeee")
             if ret == False:
                 break
             height, width, _ = frame.shape
@@ -93,13 +94,6 @@ def start_camera():
                             x = int(points.x * width)
                             y = int(points.y * height)
 
-                            # print("X: ", x)
-                            # print("Y: ", y)
-                    # mp_drawing.draw_landmarks(
-                    #     frame, hand_landmarks, mp_hands.HAND_CONNECTIONS,
-                    #     mp_drawing.DrawingSpec(
-                    #         color=(0, 255, 255), thickness=3, circle_radius=5),
-                    #     mp_drawing.DrawingSpec(color=(255, 0, 255), thickness=4, circle_radius=5))
             # cv2.imshow('Frame', frame)
             if cv2.waitKey(1) & 0xFF == 27:
                 break
@@ -108,6 +102,7 @@ def start_camera():
 
 
 def main():
+    global game_over
     game_over = False
     clock = pygame.time.Clock()
 
@@ -141,27 +136,23 @@ def main():
 
         if botones[0]['on_click'] and click:
             print("Jugar")
-            # mediapipe_hands_recognition.main()
-            # exec("mediapipe_hands_recognition.py")
 
             camera.start()
-            # StarCamera(1).start()
-            # x.
             click = False
 
         dibujar_botones_iniciales(botones)
 
         if click and botones[1]['on_click']:
             game_over = True
-
+            camera.kill()
+            camera.join()
             click = False
 
         print("X: ", x)
         print("Y: ", y)
         pygame.display.flip()
         clock.tick(60)
-    camera.kill()
-    camera.join()
+
     pygame.quit()
 
 

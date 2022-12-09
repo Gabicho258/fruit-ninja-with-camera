@@ -48,6 +48,8 @@ background = pygame.transform.scale(background, (width, height))
 imagen_boton = pygame.image.load("./img/button.png")
 imagen_boton_pressed = pygame.image.load("./img/buttonPressed.png")
 fuente = pygame.font.SysFont('Courier', 20)
+startTime = 0
+endTime = 0
 
 
 def dibujar_texto(texto, contenedor_imagen, contenedor_rec, fuente_render, color):
@@ -221,6 +223,8 @@ def start_collisions():
     global height
     global x
     global y
+    global startTime
+    global endTime
 
     while not game_over:
         # set the image on screen object
@@ -287,6 +291,9 @@ def start_collisions():
         # crash function call
         crash()
 
+        endTime = int(time.time())
+        if (endTime - startTime) > 120:
+            game_over = True
         time.sleep(0.01)
         # update screen
         pygame.display.update()
@@ -330,7 +337,9 @@ def main():
 
         if botones[0]['on_click'] and click:
             print("Jugar")
+            global startTime
             camera.start()
+            startTime = int(time.time())
             collisions.start()
             click = False
 

@@ -39,15 +39,37 @@ pygame.init()
 # Inicialización de la superficie de dibujo
 width = 640
 height = 480
+# size of a block
+pixel = 64
 
 ventana = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Fruit Ninja")
 background = pygame.image.load("images/background_image.jpg")
 background = pygame.transform.scale(background, (width, height))
 # imagen_panel = pygame.image.load("./img/panel.png")
-imagen_boton = pygame.image.load("./img/button.png")
-imagen_boton_pressed = pygame.image.load("./img/buttonPressed.png")
+imagen_boton = pygame.image.load("./images/button.png")
+imagen_boton_pressed = pygame.image.load("./images/buttonPressed.png")
 fuente = pygame.font.SysFont('Courier', 20)
+
+#############frutas################
+
+orange = pygame.image.load("./images/orange.png")
+orange = pygame.transform.scale(orange, (pixel, pixel))
+watermelon = pygame.image.load("./images/watermelon.png")
+watermelon = pygame.transform.scale(watermelon, (pixel, pixel))
+pineapple = pygame.image.load("./images/pineapple.png")
+pineapple = pygame.transform.scale(pineapple, (pixel, pixel))
+apple = pygame.image.load("./images/apple.png")
+apple = pygame.transform.scale(apple, (pixel, pixel))
+banana = pygame.image.load("./images/banana.png")
+banana = pygame.transform.scale(banana, (pixel, pixel))
+
+fruits = [orange, watermelon, pineapple, apple, banana]
+
+current_fruit = fruits[random.randint(0, len(fruits) - 1)]
+
+###################################
+
 startTime = 0
 endTime = 0
 
@@ -119,19 +141,17 @@ def start_camera():
 
 
 #################################colisiones############################################
-# size of a block
-pixel = 64
 
 # load the image
-gameIcon = pygame.image.load("rectangleBlock.png")
+gameIcon = pygame.image.load("./images/rectangleBlock.png")
 
 
 # load the image
-backgroundImg = pygame.image.load("wallBackground.jpg")
+backgroundImg = pygame.image.load("./images/wallBackground.jpg")
 backgroundImg = pygame.transform.scale(backgroundImg, (width, height))
 
 # load the image
-playerImage = pygame.image.load("player.png")
+playerImage = pygame.image.load("./images/katana2.png")
 playerImage = pygame.transform.scale(playerImage, (50, 50))
 
 # set the position
@@ -155,7 +175,7 @@ def player(x, y):
 
 
 # load the image
-blockImage = pygame.image.load("rectangleBlock.png")
+blockImage = pygame.image.load("./images/rectangleBlock.png")
 blockImage = pygame.transform.scale(blockImage, (pixel, pixel))
 
 # set the random position
@@ -175,8 +195,9 @@ blockYPositionChange = 2
 
 
 def block(x, y):
+    global current_fruit
     # paste image on screen object
-    ventana.blit(blockImage,
+    ventana.blit(current_fruit,
                  (x, y))
 
 # define a function for
@@ -191,6 +212,8 @@ def crash():
     global x
     global y
     global pixel
+    global fruits
+    global current_fruit
     # check conditions
     if y < (blockYPosition + pixel):
 
@@ -201,6 +224,7 @@ def crash():
             blockYPosition = height + 10
             counter += 1
             print("Score: ", counter)
+            current_fruit = fruits[random.randint(0, len(fruits) - 1)]
 
 
 def start_collisions():

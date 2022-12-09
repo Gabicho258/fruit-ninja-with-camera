@@ -141,6 +141,15 @@ def start_camera():
 
 
 #################################colisiones############################################
+# buttons
+r_button_timer = imagen_boton.get_rect()
+r_button_timer.center = (width/2, 30)
+button_timer = {'texto': "Time", 'imagen': imagen_boton,
+                'imagen_pressed': imagen_boton_pressed, 'rect': r_button_timer, 'on_click': False}
+r_button_score = imagen_boton.get_rect()
+r_button_score.topleft = (25, 420)
+button_score = {'texto': "Score", 'imagen': imagen_boton,
+                'imagen_pressed': imagen_boton_pressed, 'rect': r_button_score, 'on_click': False}
 
 # load the image
 gameIcon = pygame.image.load("./images/rectangleBlock.png")
@@ -183,7 +192,7 @@ blockXPosition = random.randint(0,
                                 (width - pixel))
 
 blockYPosition = 0 - pixel
-counter = 0
+score = 0
 # set the speed of
 # the block
 blockXPositionChange = 0
@@ -208,7 +217,7 @@ def crash():
     # take a global variable
     global blockYPosition
     global blockXPosition
-    global counter
+    global score
     global x
     global y
     global pixel
@@ -222,8 +231,8 @@ def crash():
             or ((x + pixel) > blockXPosition
                 and (x + pixel) < (blockXPosition + pixel))):
             blockYPosition = height + 10
-            counter += 1
-            print("Score: ", counter)
+            score += 1
+            print("Score: ", score)
             current_fruit = fruits[random.randint(0, len(fruits) - 1)]
 
 
@@ -234,7 +243,7 @@ def start_collisions():
     global playerYPosition
     global blockXPosition
     global blockYPosition
-    global counter
+    global score
     global blockXPositionChange
     global blockYPositionChange
     global playerXPositionChange
@@ -316,6 +325,16 @@ def start_collisions():
         crash()
 
         endTime = int(time.time())
+        button_timer['text'] = "Time: " + \
+            str(120 - int(endTime - startTime))
+        ventana.blit(button_timer['imagen'], button_timer['rect'])
+        dibujar_texto(button_timer['text'], button_timer['imagen'].get_rect(),
+                      button_timer['rect'], fuente, BLANCO)
+        button_score['text'] = "Score: " + \
+            str(score)
+        ventana.blit(button_score['imagen'], button_score['rect'])
+        dibujar_texto(button_score['text'], button_score['imagen'].get_rect(),
+                      button_score['rect'], fuente, BLANCO)
         if (endTime - startTime) > 120:
             game_over = True
         time.sleep(0.01)
@@ -345,11 +364,12 @@ def main():
     click = False
     camera = StartCamera(1)
     collisions = StartCollisions(2)
+    game_started = False
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN and not game_started:
                 mouse = event.pos
                 for boton in botones:
                     boton['on_click'] = boton['rect'].colliderect(
@@ -361,10 +381,13 @@ def main():
 
         if botones[0]['on_click'] and click:
             print("Jugar")
+
             global startTime
             camera.start()
             startTime = int(time.time())
+
             collisions.start()
+            game_started = True
             click = False
 
         # dibujar_botones_iniciales(botones)

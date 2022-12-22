@@ -48,6 +48,7 @@ background = pygame.image.load("images/background_image.jpg")
 background = pygame.transform.scale(background, (width, height))
 # imagen_panel = pygame.image.load("./img/panel.png")
 imagen_boton = pygame.image.load("./images/button.png")
+imagen_boton_scaled = pygame.transform.scale(imagen_boton, (280, 49))
 imagen_boton_pressed = pygame.image.load("./images/buttonPressed.png")
 fuente = pygame.font.SysFont('Courier', 20)
 
@@ -102,8 +103,12 @@ ventana.blit(background, (0, 0))
 x = 0
 y = 0
 
+camera_open = False
+
 
 def start_camera():
+    global camera_open
+    camera_open = True
     mp_hands = mp.solutions.hands
     # cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
@@ -111,7 +116,7 @@ def start_camera():
             static_image_mode=False,
             max_num_hands=2,
             min_detection_confidence=0.5) as hands:
-        while not game_over:
+        while camera_open:
             ret, frame = cap.read()
             if ret == False:
                 break
@@ -258,9 +263,13 @@ def start_collisions():
     global y
     global startTime
     global endTime
+    global camera_open
+    global game_started
 
-    while not game_over:
+    while game_started:
         # set the image on screen object
+        # if game_over:
+        #     break
         ventana.blit(backgroundImg, (0, 0))
 
         # loop through all events
@@ -326,7 +335,7 @@ def start_collisions():
 
         endTime = int(time.time())
         button_timer['text'] = "Time: " + \
-            str(120 - int(endTime - startTime))
+            str(60 - int(endTime - startTime))
         ventana.blit(button_timer['imagen'], button_timer['rect'])
         dibujar_texto(button_timer['text'], button_timer['imagen'].get_rect(),
                       button_timer['rect'], fuente, BLANCO)
@@ -335,17 +344,36 @@ def start_collisions():
         ventana.blit(button_score['imagen'], button_score['rect'])
         dibujar_texto(button_score['text'], button_score['imagen'].get_rect(),
                       button_score['rect'], fuente, BLANCO)
-        if (endTime - startTime) > 120:
+        if (endTime - startTime) > 60:
+            ventana.blit(backgroundImg, (0, 0))
+            button_score['text'] = "Tu score final es: " + \
+                str(score)
+            button_score['imagen'] = imagen_boton_scaled
+            r_button_score.center = (width/2, height/2)
+            ventana.blit(button_score['imagen'], button_score['rect'])
+            dibujar_texto(button_score['text'], button_score['imagen'].get_rect(),
+                          button_score['rect'], fuente, BLANCO)
+            time.sleep(5)
+            camera_open = False
             game_over = True
+            game_started = False
+
         time.sleep(0.01)
         # update screen
+
         pygame.display.update()
 
+
 ########################################################################################
+game_started = False
+botones = []
 
 
 def main():
     global game_over
+    global game_started
+    global botones
+    global camera_open
     game_over = False
     clock = pygame.time.Clock()
 
@@ -368,6 +396,8 @@ def main():
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                camera_open = False
+                game_started = False
                 game_over = True
             if event.type == pygame.MOUSEBUTTONDOWN and not game_started:
                 mouse = event.pos
@@ -383,11 +413,11 @@ def main():
             print("Jugar")
 
             global startTime
+            game_started = True
             camera.start()
             startTime = int(time.time())
 
             collisions.start()
-            game_started = True
             click = False
 
         # dibujar_botones_iniciales(botones)

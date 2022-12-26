@@ -349,7 +349,7 @@ def start_collisions():
             button_score['text'] = "Tu score final es: " + \
                 str(score)
             button_score['imagen'] = imagen_boton_scaled
-            r_button_score.center = (width/2, height/2)
+            r_button_score.center = (width/2 - 50, height/2 - 10)
             ventana.blit(button_score['imagen'], button_score['rect'])
             dibujar_texto(button_score['text'], button_score['imagen'].get_rect(),
                           button_score['rect'], fuente, BLANCO)

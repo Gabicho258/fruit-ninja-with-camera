@@ -6,5 +6,6 @@
 
 ### Para ejecutar el programa:
 ```python
+pip install -r requirements.txt
 python init.py
 ```
